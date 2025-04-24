@@ -1,0 +1,27 @@
+{
+    "Living Room Fan": {
+        "id": "your_device_id_here",
+        "category": "fskg",
+        "icon": "assets/494ae584c7a0c912db1f7797eaa83b78.jpg"
+    },
+    "Bedroom Fan": {
+        "id": "your_fan_device_id_here",
+        "category": "fskg",
+        "icon": "assets/494ae584c7a0c912db1f7797eaa83b78.jpg"
+    },
+    "Kitchen Light": {
+        "id": "your_light_device_id_here",
+        "category": "tdq",
+        "icon": "assets/3a2eeeddd2a0d0532722e1f3966a1b5c.png"
+    },
+    "Living Room Light": {
+        "id": "your_light_device_id_here",
+        "category": "tdq",
+        "icon": "assets/3a2eeeddd2a0d0532722e1f3966a1b5c.png"
+    },
+    "Bathroom Fan": {
+        "id": "your_fan_device_id_here",
+        "category": "fskg",
+        "icon": "assets/494ae584c7a0c912db1f7797eaa83b78.jpg"
+    }
+}
