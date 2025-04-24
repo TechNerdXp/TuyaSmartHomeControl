@@ -5,14 +5,13 @@ import darkdetect  # You'll need to: pip install darkdetect
 from dotenv import load_dotenv
 import os
 from PIL import Image
-import requests
-from io import BytesIO
-import hashlib
+import pystray
 from pathlib import Path
 import shutil
 import sys
 import pkg_resources
 from datetime import datetime, timedelta
+import threading
 
 # Load and validate environment variables
 load_dotenv()
@@ -102,15 +101,36 @@ class CloudUI:
         self.root = ctk.CTk()
         self.root.title("Smart Home Control")
         self.root.geometry("800x600")
-        
+        self.root.protocol('WM_DELETE_WINDOW', self.hide_window)
+        self.root.withdraw()  # Hide window initially
+
+        # Load icon from assets folder
+        icon_path = get_resource_path('assets/app.ico')
         try:
-            # Try to use the built-in CustomTkinter icon
-            icon_path = pkg_resources.resource_filename('customtkinter', 'assets/icons/CustomTkinter_icon_3.png')
-            if os.path.exists(icon_path):
-                self.root.iconphoto(True, ctk.CTkImage(light_image=Image.open(icon_path), size=(64, 64))._light_image)
+            self.icon_image = Image.open(icon_path)
+            # Ensure icon is appropriate size for tray
+            self.icon_image = self.icon_image.resize((128, 128), Image.Resampling.LANCZOS)
+            # Set window icon
+            self.root.iconbitmap(icon_path)
         except Exception as e:
-            print(f"Warning: Could not load window icon: {e}")
+            print(f"Warning: Could not load app icon ({e}), using default")
+            self.icon_image = Image.new('RGBA', (128, 128), (52, 152, 219))
         
+        self.tray_menu = (
+            pystray.MenuItem('Show/Hide', self.toggle_window),
+            pystray.MenuItem('Toggle All', self.toggle_all_devices),
+            pystray.MenuItem('Toggle Fans', lambda: self.toggle_category('fskg')),
+            pystray.MenuItem('Toggle Lights', lambda: self.toggle_category('tdq')),
+            pystray.MenuItem('Exit', self.quit_application)
+        )
+        
+        self.tray_icon = pystray.Icon(
+            "smart_home",
+            self.icon_image,
+            "Smart Home Control",
+            menu=self.tray_menu
+        )
+
         # Set appearance mode based on system
         system_mode = "dark" if darkdetect.isDark() else "light"
         ctk.set_appearance_mode(system_mode)
@@ -462,8 +482,29 @@ class CloudUI:
             cmd = 'switch_fan' if widget_info['category'] == 'fskg' else 'switch_1'
             self.device_action(dev_id, cmd, True, widget_info['button'])
 
+    def hide_window(self):
+        self.root.withdraw()
+
+    def show_window(self):
+        self.root.deiconify()
+        self.root.lift()
+        self.root.focus_force()
+
+    def toggle_window(self):
+        if self.root.state() == 'withdrawn':
+            self.show_window()
+        else:
+            self.hide_window()
+
+    def quit_application(self):
+        self.tray_icon.stop()
+        self.root.quit()
+
     def run(self):
+        # Start system tray icon in a separate thread
+        threading.Thread(target=self.tray_icon.run, daemon=True).start()
         self.root.mainloop()
 
 if __name__ == "__main__":
-    CloudUI().run()
+    app = CloudUI()
+    app.run()

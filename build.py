@@ -4,13 +4,14 @@ from pathlib import Path
 
 project_root = Path(__file__).parent
 
-# Use a simple built-in PyInstaller icon since we're setting it at runtime anyway
+# Use app.ico for both runtime and exe icon
 PyInstaller.__main__.run([
     'main.py',
-    '--name=TuyaSmartControl',
+    '--name=TuyaSmart Control',
     '--windowed',
     '--onefile',
     '--clean',
+    '--icon=assets/app.ico',  # Add icon for exe
     '--add-data=devices.json;.',
     '--add-data=assets;assets',
     '--collect-all=customtkinter',

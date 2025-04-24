@@ -18,3 +18,4 @@ devices.json
 dist/
 build/
 .env
+*.spec
